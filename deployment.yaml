@@ -1,0 +1,55 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: play-mla
+spec:
+  selector:
+    matchLabels:
+      application: play-mla
+  strategy:
+    rollingUpdate:
+      maxSurge: 3
+      maxUnavailable: 70%
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        application: play-mla
+    spec:
+      containers:
+      - image: hub.ecns.io/test/play-mla:alpha-${BUILD_ID}
+        imagePullPolicy: IfNotPresent
+        name: play-mla
+        ports:
+        - containerPort: 80
+          protocol: TCP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: play-mla-svc
+  labels:
+    application: play-mla
+spec:
+  ports:
+  - name: play-mla-port
+    port: 80
+    protocol: TCP
+    targetPort: 80
+  selector:
+    application: play-mla
+  type: ClusterIP
+---
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: play-mla
+spec:
+  rules:
+  - host: play-mla.es.cn
+    http:
+      paths:
+      - backend:
+          serviceName: play-mla-svc
+          servicePort: 80
