@@ -49,7 +49,8 @@ spec:
   rules:
   - host: play-mla.es.cn
     http:
-      paths: /play
+      paths: 
       - backend:
           serviceName: play-mla-svc
           servicePort: 80
+        path: /play
